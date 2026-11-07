@@ -6,7 +6,7 @@
 下载 → 双击 → 改参数 → 导出
 ```
 
-![Version](https://img.shields.io/badge/version-4.0-0e7490)
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://tianqiqwq.github.io/alpa-lens-board-generator/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 ![Offline](https://img.shields.io/badge/offline-100%25-blue)
@@ -70,6 +70,10 @@
 ---
 
 ## 快速开始
+
+**在线试用**（推荐先看一眼）：<https://tianqiqwq.github.io/alpa-lens-board-generator/>
+
+离线使用：
 
 1. 下载 [`ALPA镜头板生成器.html`](ALPA镜头板生成器.html)（约 730 KiB）；
 2. 用 Chrome / Edge 双击打开（**不需要联网**）；
