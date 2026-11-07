@@ -95,43 +95,32 @@
 
 ## 界面与效果
 
-### 三种形态：全景 + 截面
+### 三种形态（全景 + 剖面 + 文字讲解）
+
+![单板：全景与剖面](preview/fig-board.png)
+
+![锥形延长：全景与剖面](preview/fig-cone.png)
+
+![方箱延长：全景与剖面](preview/fig-box.png)
+
+> 上面三张由 `tools/make-figures.mjs`（headless Chrome 抓纯 3D 画面，无 UI）+ `tools/make-figures.py`（排版）自动生成，改完代码重跑即可。
+
+### 应用界面与其它视图
 
 <table>
 <tr>
-<td width="50%"><img src="preview/01-box-iso.png" alt="方箱延长 全景"><br><sub><b>方箱延长</b> · 全景：默认总长 20 mm（底板 3 + 方桶 14 + 顶板 3），顶面 M65×1</sub></td>
-<td width="50%"><img src="preview/02-box-section.png" alt="方箱延长 截面"><br><sub><b>方箱延长</b> · 截面：内壁光陷阱凹台、顶板贯通螺纹、底板开口</sub></td>
+<td width="33%"><img src="preview/07-box130-iso.png" alt="界面"><br><sub>界面总览：左侧参数、右侧实时 3D（方箱 130 mm）</sub></td>
+<td width="33%"><img src="preview/08-box130-front.png" alt="正视"><br><sub>正视：总高 / 锥度 / 螺纹规格标注</sub></td>
+<td width="33%"><img src="preview/09-box130-top.png" alt="俯视"><br><sub>俯视：88.5 阶梯切角轮廓 + 内腔凹台</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="preview/03-cone-iso.png" alt="锥形延长 全景"><br><sub><b>锥形延长</b> · 全景：默认 20 mm 延长，外锥 ⌀80 → ⌀52</sub></td>
-<td width="50%"><img src="preview/04-cone-section.png" alt="锥形延长 截面"><br><sub><b>锥形延长</b> · 截面：等壁厚内锥、顶端 M42×1 螺纹</sub></td>
-</tr>
-<tr>
-<td width="50%"><img src="preview/05-board-iso.png" alt="单板 全景"><br><sub><b>单板</b> · 全景：⌀35 平底板（标准板 A，3 mm）</sub></td>
-<td width="50%"><img src="preview/06-board-section.png" alt="单板 截面"><br><sub><b>单板</b> · 截面：3 mm 板体 + 贯通孔、孔口倒角</sub></td>
+<td><img src="preview/10-box130-bottom.png" alt="仰视"><br><sub>仰视：ALPA 板层级底板</sub></td>
+<td><img src="preview/11-board-B.png" alt="锥面板"><br><sub>板型 B（锥面板）+ M65×1 凸台 2 mm</sub></td>
+<td><img src="preview/12-boss35.png" alt="自适应凸台"><br><sub>⌀35 + 3 mm 凸台：尖端自动收到 ⌀41</sub></td>
 </tr>
 </table>
 
-### 长版参考件（方箱 130 mm）
-
 <table>
-<tr>
-<td width="50%"><img src="preview/07-box130-iso.png" alt="130 等轴"><br><sub>等轴：底板 3 + 方桶 124 + 顶板 3，体积 201.47 cm³</sub></td>
-<td width="50%"><img src="preview/08-box130-front.png" alt="130 正视"><br><sub>正视：总高、锥度、螺纹规格实时标注</sub></td>
-</tr>
-<tr>
-<td width="50%"><img src="preview/09-box130-top.png" alt="130 俯视"><br><sub>俯视：88.5 阶梯切角轮廓 + 内腔光陷阱凹台</sub></td>
-<td width="50%"><img src="preview/10-box130-bottom.png" alt="130 仰视"><br><sub>仰视：ALPA 板层级底板（78 R4 / 82.5 R5 / 88.5 R8）</sub></td>
-</tr>
-</table>
-
-### 其它
-
-<table>
-<tr>
-<td width="50%"><img src="preview/11-board-B.png" alt="锥面板"><br><sub>板型 B（锥面板）+ M65×1 自适应凸台 2 mm</sub></td>
-<td width="50%"><img src="preview/12-boss35.png" alt="自适应凸台"><br><sub>⌀35 + 3 mm 凸台：尖端自动收到 ⌀41，锥角自动</sub></td>
-</tr>
 <tr>
 <td width="50%"><img src="preview/13-mobile.png" alt="移动端"><br><sub>响应式：手机上也能用</sub></td>
 <td width="50%"><img src="preview/14-invalid.png" alt="参数校验"><br><sub>尺寸越界红字提示并禁用导出</sub></td>
@@ -254,9 +243,11 @@ tools/test-geometry.mjs 几何单测（Node，无浏览器）
 tools/e2e.mjs           headless Chrome 端到端（CDP，零第三方依赖）
 tools/verify-built.mjs  成品静态验收
 tools/make-samples.mjs  按预设生成 samples/
+tools/make-figures.mjs  抓三种形态的全景/剖面原图（纯 3D、无 UI）
+tools/make-figures.py   合成带文字讲解的示例图
 tools/ref/              从 STEP/3MF 参考件提取基准 → reference.json
 samples/                7 组预设的 STL / 3MF / 参数 TXT
-preview/                14 张截图（由 e2e 自动生成）
+preview/                11 张图（3 张并版示例图 + 8 张界面截图）
 ```
 
 ### 构建与测试
