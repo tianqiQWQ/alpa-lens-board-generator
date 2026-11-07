@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef1f4">
+<title>ALPA 镜头板生成器</title>
+<style>
+:root{
+  --bg:#eef1f4; --panel:#fbfbfc; --card:#ffffff; --line:#e4e8ec; --line2:#eef1f4;
+  --ink:#1f2937; --ink2:#4b5563; --muted:#8a94a0; --amber:#d97706; --amber2:#f59e0b;
+  --teal:#0f766e; --red:#dc2626; --green:#15803d; --shadow:0 10px 30px rgba(15,23,42,.08);
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:
+    radial-gradient(1200px 700px at 75% -10%, #ffffff 0%, rgba(255,255,255,0) 60%),
+    var(--bg);
+  color:var(--ink);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+}
+#app{display:flex; height:100vh; height:100dvh; width:100vw}
+#panel{
+  width:386px; min-width:386px; height:100%; display:flex; flex-direction:column;
+  background:var(--panel); border-right:1px solid var(--line); z-index:5;
+}
+.brand{display:flex; align-items:center; gap:11px; padding:15px 18px 11px}
+.brand-mark{
+  width:38px; height:38px; border-radius:11px; flex:none;
+  display:grid; place-items:center; color:#fff; font-weight:700; font-size:17px; letter-spacing:.5px;
+  background:linear-gradient(145deg,#f59e0b,#d97706 60%,#b45309);
+  box-shadow:0 6px 14px rgba(217,119,6,.28);
+}
+.brand h1{font-size:16px; margin:0; letter-spacing:.4px}
+.brand p{margin:2px 0 0; font-size:11.5px; color:var(--muted); letter-spacing:.4px}
+.brand .ver{margin-left:auto; font:11px var(--mono); color:var(--muted); border:1px solid var(--line); border-radius:20px; padding:2px 8px}
+.scroll{flex:1; overflow:auto; padding:0 14px 8px; scrollbar-width:thin}
+.card{background:var(--card); border:1px solid var(--line); border-radius:13px; padding:11px 11px 9px; margin:0 0 9px; box-shadow:0 1px 0 rgba(15,23,42,.02)}
+.card-h{display:flex; align-items:baseline; gap:8px; margin:0 2px 7px}
+.card-h h2{font-size:12.5px; margin:0; letter-spacing:.6px; font-weight:650}
+.card-h .hint{font-size:11px; color:var(--muted); margin-left:auto}
+.seg{display:flex; gap:4px; background:#f3f5f7; border-radius:10px; padding:3px}
+.seg button{
+  flex:1; height:30px; font-size:12.5px; border-radius:8px; border:0; background:transparent;
+  color:var(--ink2); font-weight:600; cursor:pointer;
+}
+.seg button.on{background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(15,23,42,.11)}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px 10px}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px 8px}
+.fld{display:flex; flex-direction:column; gap:3px}
+.fld label{font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; gap:4px}
+.fld label span{font:10.5px var(--mono); color:#aab3bd}
+.fld input,.fld select{
+  height:29px; border:1px solid var(--line); border-radius:8px; background:#fcfdfe; padding:0 8px;
+  font:600 12.5px var(--mono); color:var(--ink); text-align:right; outline:none; width:100%;
+}
+.fld select{text-align:left; font-family:inherit; font-weight:600}
+.fld input:hover,.fld select:hover{border-color:#cfd6dd}
+.fld input:focus,.fld select:focus{border-color:var(--amber2); box-shadow:0 0 0 3px rgba(245,158,11,.16); background:#fff}
+.fld input.bad{border-color:var(--red); background:#fff7f7}
+.fld.wide{grid-column:1 / -1}
+.desc{font-size:11px; color:var(--muted); line-height:1.5; margin:7px 2px 0; padding-top:7px; border-top:1px dashed var(--line)}
+.boss-head{display:flex; align-items:baseline; justify-content:space-between; margin:0 2px 4px}
+.boss-head b{font:700 20px var(--mono); color:var(--amber)}
+.boss-head span{font-size:11px; color:var(--muted)}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:26px; background:transparent; outline:none;
+  padding:0; border:0;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:6px; border-radius:4px; background:linear-gradient(90deg,#f59e0b 0%,#f59e0b var(--p,40%),#e6eaee var(--p,40%),#e6eaee 100%);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+  background:#fff; border:2px solid #d97706; box-shadow:0 2px 6px rgba(217,119,6,.3); margin-top:-6px; cursor:grab;
+}
+input[type=range]::-moz-range-track{height:6px; border-radius:4px; background:#e6eaee}
+input[type=range]::-moz-range-progress{height:6px; border-radius:4px; background:#f59e0b}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#fff; border:2px solid #d97706; cursor:grab}
+.presets{display:flex; flex-wrap:wrap; gap:6px}
+.presets button{
+  height:27px; padding:0 10px; font-size:11.5px; border-radius:8px; background:#fff;
+  border:1px solid var(--line); color:var(--ink2); cursor:pointer;
+}
+.presets button:hover{border-color:#f59e0b; color:#b45309; background:#fffbeb}
+.readout .ro-row{display:flex; align-items:baseline; justify-content:space-between; padding:2px 2px; font-size:12px; color:var(--ink2)}
+.readout .ro-row b{font:600 12px var(--mono); color:var(--ink)}
+.readout .ro-row.small b{font-weight:500; color:var(--ink2)}
+.status-inline{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; padding:0 2px 2px}
+.status-inline .muted{font:10.5px var(--mono); color:var(--muted); margin-left:auto; font-weight:400}
+.dot{width:9px; height:9px; border-radius:50%; background:#cbd5e1; flex:none}
+.dot.ok{background:var(--green); box-shadow:0 0 0 3px rgba(21,128,61,.13)}
+.dot.err{background:var(--red); box-shadow:0 0 0 3px rgba(220,38,38,.13)}
+.msgs{list-style:none; margin:0 0 4px; padding:0; display:flex; flex-direction:column; gap:4px; max-height:74px; overflow:auto}
+.msgs:empty{display:none}
+.msgs li{font-size:11.5px; line-height:1.4; padding:5px 8px; border-radius:7px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa}
+.msgs li.err{background:#fef2f2; color:#991b1b; border-color:#fecaca}
+.msgs li.warn{background:#fffbeb; color:#92400e; border-color:#fde68a}
+.actions{padding:9px 14px 12px; border-top:1px solid var(--line); background:linear-gradient(180deg,rgba(251,251,252,.4),#fbfbfc); display:flex; flex-direction:column; gap:7px}
+.actions-row{display:flex; gap:7px}
+button{font-family:inherit; cursor:pointer; border-radius:9px; border:1px solid transparent; transition:transform .06s, background .15s, border-color .15s, box-shadow .15s; user-select:none}
+button:active{transform:translateY(1px)}
+button.primary{
+  flex:1; height:38px; font-size:13.5px; font-weight:650; color:#fff; letter-spacing:.3px;
+  background:linear-gradient(180deg,#f59e0b,#d97706); box-shadow:0 5px 12px rgba(217,119,6,.25);
+}
+button.primary:hover{filter:brightness(1.04)}
+button.primary.alt{background:linear-gradient(180deg,#14b8a6,#0f766e); box-shadow:0 5px 12px rgba(15,118,110,.22)}
+button.ghost{flex:1; height:32px; font-size:12px; color:var(--ink2); background:#fff; border-color:var(--line)}
+button.ghost:hover{border-color:#cfd6dd; background:#f8fafc}
+button:disabled{opacity:.45; cursor:not-allowed; transform:none}
+#stage{position:relative; flex:1; min-width:0; height:100%; overflow:hidden}
+#canvas{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none}
+#toolbar{position:absolute; top:14px; right:14px; display:flex; flex-direction:column; gap:8px; align-items:flex-end; z-index:4}
+.tb-group{
+  display:flex; gap:2px; padding:4px; border-radius:12px; background:rgba(255,255,255,.82);
+  border:1px solid rgba(226,232,240,.9); box-shadow:0 8px 22px rgba(15,23,42,.07); backdrop-filter:blur(8px);
+}
+.tb-group button{height:27px; padding:0 9px; font-size:12px; color:#475569; background:transparent; border-radius:8px; white-space:nowrap}
+.tb-group button:hover{background:#f1f5f9}
+.tb-group button.on{background:#1f2937; color:#fff; box-shadow:0 3px 8px rgba(15,23,42,.18)}
+#hint{position:absolute; left:16px; bottom:14px; z-index:3; font-size:11.5px; color:#7b8794;
+  background:rgba(255,255,255,.66); padding:5px 10px; border-radius:20px; border:1px solid rgba(226,232,240,.8)}
+#badge{position:absolute; right:16px; bottom:14px; z-index:3; font:10.5px var(--mono); color:#94a3b8;
+  background:rgba(255,255,255,.55); padding:3px 8px; border-radius:6px}
+#toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(14px); z-index:50;
+  background:#111827; color:#fff; font-size:12.5px; padding:9px 16px; border-radius:10px;
+  opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; max-width:80vw; text-align:center}
+#toast.show{opacity:.95; transform:translateX(-50%) translateY(0)}
+#toast.err{background:#b91c1c}
+.hide{display:none !important}
+@media (max-width: 980px){
+  body{overflow:auto}
+  #app{flex-direction:column}
+  #panel{width:100%; min-width:0; height:auto; max-height:54vh; order:2; border-right:0; border-top:1px solid var(--line)}
+  #stage{order:1; height:46vh; flex:none}
+  .brand{padding:12px 14px 10px}
+  .brand-mark{width:34px;height:34px;border-radius:10px;font-size:15px}
+  .scroll{padding:0 10px 6px}
+  .actions{padding:8px 10px 10px}
+  #toolbar{top:10px; right:10px; gap:6px}
+  .tb-group{padding:3px; border-radius:10px}
+  .tb-group button{height:25px; padding:0 7px; font-size:11.5px}
+  #hint{display:none}
+}
+@media (max-width: 520px){
+  .grid3{grid-template-columns:1fr 1fr}
+  .tb-group button{padding:0 6px}
+  #badge{display:none}
+  #toolbar{left:8px; right:8px; align-items:flex-end}
+  .tb-group{flex-wrap:wrap; justify-content:flex-end; max-width:100%}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <header class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <h1>ALPA 镜头板生成器</h1>
+        <p id="subtitle">单板 / 锥形延长 / 方箱延长 · 3 mm 板体</p>
+      </div>
+      <span class="ver" id="ver">v2.0</span>
+    </header>
+
+    <div class="scroll">
+      <section class="card">
+        <div class="card-h"><h2>板型</h2><span class="hint">88.5 × 88.5 · 板体 3 mm</span></div>
+        <div class="seg" id="boardSeg">
+          <button data-board="A" class="on">标准板</button>
+          <button data-board="B">锥面板</button>
+        </div>
+        <p class="desc" id="boardDesc"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2>形态</h2><span class="hint">单板 / 锥形 / 方箱</span></div>
+        <div class="seg" id="modeSeg">
+          <button data-mode="board">单板</button>
+          <button data-mode="cone">锥形延长</button>
+          <button data-mode="box" class="on">方箱延长</button>
+        </div>
+      </section>
+
+      <section class="card" id="cardBox">
+        <div class="card-h"><h2>方箱延长</h2><span class="hint">底板 3 + 方桶 + 顶板 3</span></div>
+        <div class="grid2">
+          <div class="fld">
+            <label>总长 <span>mm</span></label>
+            <input id="boxLen" type="number" min="10" max="220" step="1" value="20">
+          </div>
+          <div class="fld">
+            <label>桶壁厚 <span>mm</span></label>
+            <input id="boxWall" type="number" min="2" max="20" step="0.25" value="6.25">
+          </div>
+        </div>
+        <p class="desc" id="boxDesc"></p>
+      </section>
+
+      <section class="card" id="cardCone">
+        <div class="card-h"><h2>锥形延长</h2><span class="hint">锥筒 + 顶端螺纹</span></div>
+        <div class="grid2">
+          <div class="fld">
+            <label>延长长度 <span>mm</span></label>
+            <input id="extLen" type="number" min="5" max="60" step="0.5" value="20">
+          </div>
+          <div class="fld">
+            <label>螺纹深度 <span>mm</span></label>
+            <input id="extDepth" type="number" min="1.5" max="58" step="0.5" value="5">
+          </div>
+          <div class="fld">
+            <label>外锥根部 <span>mm</span></label>
+            <input id="extOuterD" type="number" min="60" max="86.5" step="0.5" value="80">
+          </div>
+          <div class="fld">
+            <label>顶端螺纹</label>
+            <select id="extThreadKey"></select>
+          </div>
+          <div class="fld hide" id="fldExtD">
+            <label>大径 D <span>mm</span></label>
+            <input id="extThreadD" type="number" min="10" max="80" step="0.1" value="42">
+          </div>
+          <div class="fld hide" id="fldExtP">
+            <label>牙距 P <span>mm</span></label>
+            <input id="extThreadP" type="number" min="0.2" max="4" step="0.05" value="1">
+          </div>
+        </div>
+        <p class="desc" id="extDesc"></p>
+      </section>
+
+      <section class="card" id="cardHole">
+        <div class="card-h"><h2 id="holeTitle">镜头侧开口</h2><span class="hint" id="holeHint">贯通板体 + 凸台</span></div>
+        <div class="seg" id="holeSeg">
+          <button data-hole="plain">圆孔</button>
+          <button data-hole="thread" class="on">内螺纹</button>
+        </div>
+        <div class="grid2" style="margin-top:9px">
+          <div class="fld" id="fldHoleD">
+            <label>孔径 <span>mm</span></label>
+            <input id="holeD" type="number" min="2" max="80" step="0.1" value="35">
+          </div>
+          <div class="fld" id="fldThread">
+            <label>螺纹规格</label>
+            <select id="threadKey"></select>
+          </div>
+          <div class="fld hide" id="fldThreadD">
+            <label>大径 D <span>mm</span></label>
+            <input id="threadD" type="number" min="6" max="80" step="0.1" value="65">
+          </div>
+          <div class="fld hide" id="fldThreadP">
+            <label>牙距 P <span>mm</span></label>
+            <input id="threadP" type="number" min="0.2" max="4" step="0.05" value="1">
+          </div>
+          <div class="fld" id="fldGap">
+            <label>配合间隙 <span>+mm</span></label>
+            <input id="gap" type="number" min="0" max="0.8" step="0.05" value="0.15">
+          </div>
+          <div class="fld">
+            <label>孔口倒角 <span>mm</span></label>
+            <input id="frontChamfer" type="number" min="0" max="3" step="0.1" value="0.6">
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="cardBoss">
+        <div class="card-h"><h2>相机侧凸台</h2><span class="hint">根部 ⌀75.08 · 尖端随孔径</span></div>
+        <div class="boss-head"><b id="bossVal">2.0 mm</b><span id="bossTip">尖端 ⌀71.08</span></div>
+        <input id="bossH" type="range" min="0" max="5" step="0.1" value="2">
+        <div class="grid2" style="margin-top:7px">
+          <div class="fld">
+            <label>凸台高度 <span>mm</span></label>
+            <input id="bossHNum" type="number" min="0" max="5" step="0.1" value="2">
+          </div>
+          <div class="fld">
+            <label>锥角（自动） <span>°</span></label>
+            <input id="bossAngle" type="text" readonly value="45" style="text-align:left;color:#6b7280">
+          </div>
+        </div>
+        <p class="desc" id="bossDesc"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2>预设</h2><span class="hint">一键回到常用规格</span></div>
+        <div class="presets" id="presets"></div>
+        <div class="grid2" style="margin-top:9px">
+          <div class="fld">
+            <label>网格精度 <span>段/圈</span></label>
+            <select id="meshN">
+              <option value="240">低 240</option>
+              <option value="360" selected>中 360</option>
+              <option value="480">较高 480</option>
+              <option value="720">高 720</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>总高（自动） <span>mm</span></label>
+            <input id="totalH" type="text" readonly value="5" style="text-align:left;color:#6b7280">
+          </div>
+        </div>
+      </section>
+
+      <section class="card readout">
+        <div class="ro-row"><span>外形 / 总高</span><b id="roSize">–</b></div>
+        <div class="ro-row"><span>镜头侧开口</span><b id="roOpen">–</b></div>
+        <div class="ro-row"><span>螺纹长度 / 圈数</span><b id="roTurns">–</b></div>
+        <div class="ro-row"><span>体积</span><b id="roVol">–</b></div>
+        <div class="ro-row small"><span>PLA 实心重量</span><b id="roMass">–</b></div>
+      </section>
+    </div>
+
+    <div class="actions">
+      <div class="status-inline">
+        <span class="dot" id="dot"></span><span id="stText">正在生成…</span>
+        <span class="muted" id="stStats"></span>
+      </div>
+      <ul id="msgs" class="msgs"></ul>
+      <div class="actions-row">
+        <button class="primary" id="btnSTL">导出 STL</button>
+        <button class="primary alt" id="btn3MF">导出 3MF</button>
+      </div>
+      <div class="actions-row">
+        <button class="ghost" id="btnJSON">参数 JSON</button>
+        <button class="ghost" id="btnTXT">参数 TXT</button>
+        <button class="ghost" id="btnShot">截图</button>
+      </div>
+    </div>
+  </aside>
+
+  <main id="stage">
+    <canvas id="canvas"></canvas>
+    <div id="toolbar">
+      <div class="tb-group" id="viewGroup">
+        <button data-view="iso" class="on">等轴</button>
+        <button data-view="front">正视</button>
+        <button data-view="side">侧视</button>
+        <button data-view="top">俯视</button>
+        <button data-view="bottom">仰视</button>
+      </div>
+      <div class="tb-group" id="toggleGroup">
+        <button id="tglSection">剖视</button>
+        <button id="tglDims" class="on">标注</button>
+        <button id="tglWire">线框</button>
+        <button id="tglAuto">旋转</button>
+      </div>
+    </div>
+    <div id="hint">拖拽旋转 · 滚轮缩放 · 右键平移 · 双击复位</div>
+    <div id="badge">WebGL · 离线</div>
+  </main>
+</div>
+<div id="toast"></div>
+
+<!--INLINE_VENDOR-->
+<!--INLINE_APP-->
+</body>
+</html>
