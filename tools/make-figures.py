@@ -18,7 +18,7 @@ DST = os.path.join(ROOT, "preview")
 FONT = r"C:\Windows\Fonts\msyh.ttc"
 FONTB = r"C:\Windows\Fonts\msyhbd.ttc"
 
-W, H = 2200, 1240
+W, H_NOTES, H_PLAIN = 2200, 1240, 1040
 PANEL_W, PANEL_H = 960, 720
 PAD = 90
 BG = (255, 255, 255)
@@ -34,9 +34,9 @@ MODES = [
         "zoom": 0.80,
         "num": "①",
         "where": "单板 · ALPA 镜头板",
-        "sub": "板体 3 mm · 外形 88.5 × 88.5 · 相机侧自适应凸台 0–5 mm · 镜头侧 ⌀35 圆孔或内螺纹",
+        "sub": "板体 3 mm · 外形 88.5 × 88.5 · 相机侧自适应凸台 0–5 mm · 镜头侧 Ø35 圆孔或内螺纹",
         "bullets": [
-            "凸台根部固定 ⌀75.08，尖端 = 孔/螺纹大径 + 6 mm（M65 → ⌀71，⌀35 孔 → ⌀41），锥角自动（默认 ≈45.6°）",
+            "凸台根部固定 Ø75.08，尖端 = 孔/螺纹大径 + 6 mm（M65 → Ø71，Ø35 孔 → Ø41），锥角自动（默认 ≈45.6°）",
             "内螺纹 ISO 基本牙型，配合间隙把牙顶牙根一起外移（默认 +0.15），螺纹贯通板体 + 凸台",
             "两种板型：标准板（82.5 段平台阶）/ 锥面板（82.5 → 88.5 斜锥过渡），外观同为 88.5 方 R8",
         ],
@@ -48,8 +48,8 @@ MODES = [
         "where": "锥形延长 · 顶端 M42×1",
         "sub": "板体 3 mm + 外锥/内锥锥筒 + 顶端螺纹 · 默认延长 20 mm（总高 23 mm）",
         "bullets": [
-            "外锥 ⌀80 → ⌀52（顶端环宽恒 5 mm），外锥根部可调 60–86.5 mm",
-            "内锥根部由外锥斜率反推，与外锥等壁厚 8.89 mm；M42 时 ⌀66.4 → ⌀41.2",
+            "外锥 Ø80 → Ø52（顶端环宽恒 5 mm），外锥根部可调 60–86.5 mm",
+            "内锥根部由外锥斜率反推，与外锥等壁厚 8.89 mm；M42 时 Ø66.4 → Ø41.2",
             "顶端内螺纹可换 13 种规格，深度可调（默认 5 mm ≈ 5 圈），孔口带倒角",
         ],
     },
@@ -98,7 +98,8 @@ def fit(im, box_w, box_h):
     return im
 
 
-def compose(spec):
+def compose(spec, notes=True, out_dir=None):
+    H = H_NOTES if notes else H_PLAIN
     canvas = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(canvas)
 
@@ -129,12 +130,13 @@ def compose(spec):
         cap_w = d.textlength(caption, font=f_cap)
         d.text((x0 + (PANEL_W - cap_w) / 2, y0 + PANEL_H + 18), caption, font=f_cap, fill=INK)
 
-    # 底部要点
-    y = y0 + PANEL_H + 78
-    for b in spec["bullets"]:
-        d.ellipse([PAD, y + 10, PAD + 9, y + 19], fill=ACC)
-        d.text((PAD + 26, y), b, font=f_bul, fill=SUB)
-        y += 46
+    # 底部要点（--no-notes 时省略）
+    if notes:
+        y = y0 + PANEL_H + 78
+        for b in spec["bullets"]:
+            d.ellipse([PAD, y + 10, PAD + 9, y + 19], fill=ACC)
+            d.text((PAD + 26, y), b, font=f_bul, fill=SUB)
+            y += 46
 
     # 右下角角标
     tag = "ALPA 镜头板生成器"
@@ -142,16 +144,22 @@ def compose(spec):
     tw = d.textlength(tag, font=f_tag)
     d.text((W - PAD - tw, H - 46), tag, font=f_tag, fill=(156, 163, 175))
 
-    out = os.path.join(DST, "fig-%s.png" % spec["key"])
+    out = os.path.join(out_dir or DST, "fig-%s.png" % spec["key"])
     canvas.save(out, "PNG", optimize=True)
     print("saved %-42s %d x %d  %.0f KiB" % (out, W, H, os.path.getsize(out) / 1024))
 
 
 def main():
-    os.makedirs(DST, exist_ok=True)
+    notes = "--no-notes" not in sys.argv
+    out_dir = DST
+    if "--out" in sys.argv:
+        out_dir = sys.argv[sys.argv.index("--out") + 1]
+    if not os.path.isabs(out_dir):
+        out_dir = os.path.join(ROOT, out_dir)
+    os.makedirs(out_dir, exist_ok=True)
     for spec in MODES:
-        compose(spec)
-    print("FIGURES OK: 3 张合成示例图 → preview/fig-*.png")
+        compose(spec, notes=notes, out_dir=out_dir)
+    print("FIGURES OK: 3 张 %s → %s" % ("带讲解" if notes else "无讲解（纯图）", out_dir))
 
 
 if __name__ == "__main__":
