@@ -7,6 +7,7 @@
 ```
 
 [![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://tianqiqwq.github.io/alpa-lens-board-generator/)
+[![Release](https://img.shields.io/github/v/release/tianqiQWQ/alpa-lens-board-generator?label=release&color=0e7490)](https://github.com/tianqiQWQ/alpa-lens-board-generator/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 ![Offline](https://img.shields.io/badge/offline-100%25-blue)
@@ -73,9 +74,14 @@
 
 **在线试用**（推荐先看一眼）：<https://tianqiqwq.github.io/alpa-lens-board-generator/>
 
-离线使用：
+离线使用（两种方式任选）：
 
-1. 下载 [`ALPA镜头板生成器.html`](ALPA镜头板生成器.html)（约 730 KiB）；
+- 从 [Releases](https://github.com/tianqiQWQ/alpa-lens-board-generator/releases/latest) 下载 `ALPA-lens-board-generator.html`（带样例包 / 截图包）；
+- 或直接用仓库里的 [`ALPA镜头板生成器.html`](ALPA镜头板生成器.html)（约 730 KiB）；
+
+然后：
+
+1. 用 Chrome / Edge 双击打开（**不需要联网**）；
 2. 用 Chrome / Edge 双击打开（**不需要联网**）；
 3. 左侧选形态、改参数，右侧实时预览；
 4. 底部「导出 STL」或「导出 3MF」。
